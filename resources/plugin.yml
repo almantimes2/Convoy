@@ -1,0 +1,24 @@
+name: ServerEvents
+version: 1.4.0
+main: com.dogfriends.serverevents.ServerEventsPlugin
+api-version: 26.1
+author: Claude
+description: Alertas de raid a Discord (via BaseRaiders) y eventos de convoy robable, independientes de otros plugins.
+softdepend:
+  - Vault
+  - BaseRaiders
+  - QualityArmory
+  - SmartSpawner
+
+commands:
+  convoy:
+    description: Evento de convoy (admin) y rastreador (/convoy track, para todos)
+    usage: /convoy <addpoint|clearpoints|listpoints|spawn|stop|reload|airdrop|cleanup|testdrop|track>
+
+permissions:
+  serverevents.convoy.admin:
+    description: Permite administrar el evento de convoy
+    default: op
+  serverevents.convoy.track:
+    description: Permite pedir la brujula rastreadora del convoy con /convoy track
+    default: true

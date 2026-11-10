@@ -1,0 +1,485 @@
+# ============================================================
+#                   ServerEvents - Config
+# ============================================================
+
+raid-alerts:
+  enabled: true
+  # Crea un Webhook en Discord: Ajustes del servidor > Integraciones > Webhooks > Nuevo Webhook
+  # y pega la URL aqui. Mientras este vacio, las alertas no se envian.
+  discord-webhook-url: ""
+  # Minutos minimos entre alertas para la MISMA base (evita spam si el raid dura rato).
+  cooldown-minutes: 5
+
+convoy:
+  enabled: true
+  interval-min-minutes: 120
+  interval-max-minutes: 240
+  # Si nadie lo mata en X minutos, escapa y desaparece. (Si no hay NADIE conectado,
+  # el convoy se congela y espera en vez de escaparse.)
+  no-kill-timeout-minutes: 15
+  # Si toca aparecer el convoy y el server esta vacio, se pospone y se reintenta cada
+  # X minutos (no gasta el evento ni CPU sin jugadores).
+  retry-if-empty-minutes: 5
+  # true = las recompensas de cada golem se reparten por DANO hecho: el dinero se divide
+  # proporcionalmente entre todos los que le pegaron, y los items/comandos van al que mas
+  # dano hizo (nada de robar el ultimo golpe). false = todo al del ultimo golpe.
+  damage-rewards: true
+  # Brujula rastreadora: cualquier jugador puede pedirla con /convoy track mientras haya
+  # convoy activo; apunta al convoy, se actualiza sola y desaparece al terminar el evento.
+  tracker:
+    enabled: false
+    update-seconds: 5
+    item-name: '&6&lRastreador de Convoy'
+  # Dificultad segun jugadores: las oleadas de escolta crecen con los jugadores CERCA del
+  # convoy, y la vida de los golems con los jugadores conectados al aparecer.
+  scaling:
+    enabled: true
+    # Radio (bloques) alrededor del convoy para contar jugadores al escalar oleadas.
+    count-radius: 30.0
+    # Cada jugador extra cerca suma este % de escoltas por oleada (0.5 = +50% por jugador).
+    defenders-per-extra-player: 0.5
+    defenders-max-multiplier: 3.0
+    # Cada jugador conectado extra suma este % de vida a los golems (0.1 = +10%).
+    golem-health-per-extra-player: 0.1
+    golem-health-max-multiplier: 1.5
+  # Convoy Blindado: variante rara (evento especial dentro del evento). Cada vez que toca
+  # aparecer un convoy, hay "chance" de que sea este: mas golems, mas vida y mejor botin
+  # (money-reward e item-rewards multiplicados por reward-multiplier). No es un sistema
+  # nuevo, solo una rama distinta al spawnear.
+  armored:
+    enabled: true
+    chance: 0.15
+    golem-count-multiplier: 1.6
+    health-multiplier: 1.5
+    reward-multiplier: 2.0
+    display-name: "&4&l☠ Convoy Blindado ☠"
+  # MODO SUBTERRANEO (metro/tuneles): true = la escolta (y las oleadas del airdrop) aparecen en
+  # la MISMA capa que los golems (no en la superficie), los ghasts no se elevan, y al vencer
+  # el convoy el airdrop NO cae del cielo: es un cofre normal que aparece donde murio el convoy.
+  # false = convoy de superficie con airdrop que cae del cielo (ver airdrop.ground-if-roofed).
+  underground: false
+  # Cuantos golems de hierro cargan el cargamento (cada uno da recompensa por separado al morir).
+  golem-count: 5
+  golem-max-health: 750.0
+  display-name: "&6&lEscolta de Contrabando"
+  # Muestra un holograma con la vida actual encima de cada golem.
+  health-hologram: true
+  # Los golems NO tienen IA (no atacan, no vagan): el plugin los mueve por velocidad.
+  # Multiplicador de velocidad de marcha (1.0 = ~0.2 bloques/tick, un paso tranquilo).
+  speed: 0.5
+  # Cuando el grupo esta a menos de esta distancia (bloques) del punto, se considera "llegado".
+  arrival-threshold: 3.0
+  # Si un golem se aleja mas de esto (bloques) del centro del grupo mientras camina, se le
+  # hace un pequeno "teletransporte de reajuste" para que no se quede atras/separado del resto.
+  formation-max-spread: 10.0
+  # Cuanto tiempo se quedan parados (todos juntos) en cada waypoint antes de seguir.
+  wait-minutes-at-stops: 0.5
+  effects:
+    particles: true
+    sounds: true
+    bossbar: true
+  defenders:
+    # Cuando un jugador se acerca a menos de este radio (en bloques), aparece/refuerza la escolta armada.
+    trigger-radius: 15.0
+    # Cada cuanto llegan REFUERZOS nuevos mientras un jugador siga cerca, sin importar si
+    # todavia queda escolta viva o no (asi no se rompe el sistema si dejan a uno vivo escondido).
+    wave-interval-seconds: 30
+    # Limite total de escolta viva a la vez, para no acumular infinitos mobs si nadie pelea.
+    max-total: 40
+    pillagers: 8
+    vindicators: 3
+    witches: 2
+    ravagers: 2
+    evokers: 1
+    ghasts: 2
+    blazes: 2
+    creepers: 3
+    # Si un escolta se aleja mas de esto (bloques) del cargamento, muere automaticamente
+    # (evita que uno se quede atras para siempre bloqueando que aparezcan refuerzos).
+    max-distance-from-cargo: 40.0
+    # Los escoltas ya NO aparecen todos de golpe: salen de a pocos, con particulas blancas
+    # de aviso en el suelo donde van a aparecer.
+    # Cuantos aparecen por lote.
+    spawn-batch-size: 2
+    # Segundos entre cada lote.
+    spawn-batch-interval-seconds: 1.0
+    # NO aparecen en el centro del convoy, sino ALREDEDOR: anillo entre estos dos radios (bloques).
+    spawn-min-radius: 6.0
+    spawn-max-radius: 10.0
+    # Jefe Contrabandista: cada "every-waves" oleadas de refuerzos, se suma UN defensor
+    # especial de mas (no reemplaza a los demas) con nombre propio, mas vida y bonus de
+    # dinero al matarlo - un objetivo claro en vez de oleadas infinitas sin hito.
+    boss:
+      enabled: true
+      every-waves: 3
+      entity: RAVAGER
+      # Arma opcional (nombre de Material de Bukkit). Vacio = sin arma (el ravager ya pega solo).
+      weapon: ""
+      display-name: "&4&l☠ Jefe Contrabandista ☠"
+      health-multiplier: 4.0
+      money-bonus-min: 300
+      money-bonus-max: 800
+  # ARMAS de QualityArmory: SOLO dropean los golems del cargamento al morir (NO la escolta
+  # armada ni los contrabandistas del airdrop - con hasta 40 escoltas vivos a la vez, dejar
+  # que cualquiera soltara armas inundaba el suelo de items). Se usa la API de QualityArmory
+  # directamente (no comandos), y los nombres se validan al arrancar: si pones uno mal, sale
+  # un aviso en la consola. IMPORTANTE: "item" es el campo "name:" INTERNO de los yml de
+  # QualityArmory (ej: ak47, glock, mac10...), NO el nombre de archivo (default_ak47) ni el
+  # nombre visible. Pruebalo en el juego con /convoy testdrop (dropea uno de cada uno).
+  golem-weapon-drops:
+    enabled: true
+    drops:
+    - item: glock
+      chance: 0.04
+      min-amount: 1
+      max-amount: 1
+    - item: ak47
+      chance: 0.05
+      min-amount: 1
+      max-amount: 1
+    - item: mac10
+      chance: 0.3
+      min-amount: 1
+      max-amount: 1
+    - item: magnum
+      chance: 0.2
+      min-amount: 1
+      max-amount: 1
+    - item: uzi
+      chance: 0.2
+      min-amount: 1
+      max-amount: 1
+    - item: sten
+      chance: 0.3
+      min-amount: 1
+      max-amount: 1
+    - item: sawedoffshotgun
+      chance: 0.2
+      min-amount: 1
+      max-amount: 1
+    - item: mp5k
+      chance: 0.1
+      min-amount: 1
+      max-amount: 1
+    - item: skorpion
+      chance: 0.3
+      min-amount: 1
+      max-amount: 1
+    - item: awp
+      chance: 0.05
+      min-amount: 1
+      max-amount: 1
+  # MUNICION de QualityArmory: SOLO dropea de pillagers (escolta armada del convoy o
+  # contrabandistas del airdrop) al morir. Mismo formato y misma API que golem-weapon-drops.
+  ammo-drops:
+    enabled: true
+    drops:
+    - item: 9mm
+      chance: 0.35
+      min-amount: 8
+      max-amount: 16
+    - item: '556'
+      chance: 0.2
+      min-amount: 6
+      max-amount: 12
+    - item: shell
+      chance: 0.15
+      min-amount: 2
+      max-amount: 4
+  # Se llenan con /convoy addpoint (parado en cada punto de la ruta), en orden.
+  waypoints: []
+  money-reward:
+    min: 500
+    max: 1500
+  # RECOMPENSAS POR COMANDO: por cada golem que matan, se ejecuta cada comando (como consola)
+  # si pasa su "chance" (0.0 a 1.0). Usa %player% para el nombre del que lo mato. Aqui puedes
+  # poner lo que quieras: dar municion de QualityArmory, dinero, cofres/crates, kits, etc.
+  # Ejemplos (descomenta y ajusta a tus comandos reales):
+  # command-rewards:
+  #   - command: "qualityarmory give %player% ak47 1"
+  #     chance: 1.0
+  #   - command: "eco give %player% 500"
+  #     chance: 0.5
+  command-rewards: []
+  # Recompensas de items normales (van directo al inventario del que mata el golem, o al piso si no cabe).
+  # "material" es el nombre de Material de Bukkit (DIAMOND, EMERALD, IRON_INGOT, etc). Esto son
+  # valores de prueba, cambialos como quieras.
+  item-rewards:
+    - material: DIAMOND
+      chance: 0.5
+      min-amount: 1
+      max-amount: 3
+    - material: EMERALD
+      chance: 0.6
+      min-amount: 2
+      max-amount: 5
+    - material: IRON_INGOT
+      chance: 0.8
+      min-amount: 5
+      max-amount: 10
+  messages:
+    track-hint: "&c&l[CONVOY] &fUsa &6/convoy track &fpara recibir una brujula que apunta al convoy."
+    spawn: "&c&l[CONVOY] &fUna escolta de contrabando fue detectada en %coords%! Encuentrala y eliminala para saquearla."
+    armored-spawn: "&4&l[CONVOY] &f¡Un convoy BLINDADO fue detectado en %coords%! Mas escolta, mas vida y el doble de botin."
+    defenders-spawned: "&4&l[CONVOY] &fRefuerzos de la escolta armada llegaron a defender el cargamento!"
+    wave-boss-killed: "&4&l[CONVOY] &f%killer% elimino al Jefe Contrabandista!"
+    golem-killed: "&a&l[CONVOY] &f%killer% destruyo una escolta del cargamento! (%remaining% restantes)"
+    all-destroyed: "&2&l[CONVOY] &fEl cargamento fue completamente destruido!"
+    escaped: "&7&l[CONVOY] &fEl cargamento logro escapar sin ser detectado..."
+
+  # Cuando se destruyen TODOS los golems, cae un airdrop del cielo (visible cayendo, con
+  # rastro de particulas) con un cofre que tarda en desbloquearse y tiene mejores recompensas.
+  airdrop:
+    enabled: true
+    # true = aunque el convoy sea de superficie, si hay un techo encima de donde se vencio, el
+    # airdrop aparece directo ahi como cofre normal (sin caer del cielo ni quedar arriba).
+    ground-if-roofed: true
+    # Minutos que tarda en poder abrirse despues de aterrizar.
+    unlock-minutes: 5
+    # Si nadie lo abre, cuantos minutos despues de desbloquearse desaparece (con todo adentro).
+    expire-minutes-after-unlock: 30
+    # Segundos despues de que ALGUIEN LO ABRE para que el cofre desaparezca por completo
+    # (cofre + glow + holograma), para que no se quede flotando en el mundo.
+    remove-seconds-after-open: 10
+    # Desde que altura (bloques sobre el suelo) empieza a caer.
+    fall-height: 60
+    # Cuantos segundos tarda en bajar del cielo hasta el suelo (efecto visual, no fisica real).
+    fall-duration-seconds: 20
+    # El cofre visible en el mundo es solo decorativo: el loot de verdad vive en un
+    # inventario VIRTUAL de 54 casillas (6 filas, el maximo real de Bukkit/un cofre doble)
+    # que se abre al hacer click derecho.
+    # "enchantments" (opcional): lista de "NOMBRE:nivel" (ej. MENDING:1, SHARPNESS:5).
+    loot:
+      - material: NETHERITE_INGOT
+        chance: 0.5
+        min-amount: 5
+        max-amount: 11
+      - material: DIAMOND_BLOCK
+        chance: 1.0
+        min-amount: 4
+        max-amount: 16
+      - material: EMERALD_BLOCK
+        chance: 1.0
+        min-amount: 8
+        max-amount: 16
+      - material: GOLDEN_APPLE
+        chance: 1.0
+        min-amount: 8
+        max-amount: 22
+      - material: NETHERITE_HELMET
+        chance: 0.5
+        min-amount: 1
+        max-amount: 3
+      - material: NETHERITE_CHESTPLATE
+        chance: 0.5
+        min-amount: 1
+        max-amount: 3
+      - material: NETHERITE_LEGGINGS
+        chance: 0.5
+        min-amount: 1
+        max-amount: 3
+      - material: NETHERITE_BOOTS
+        chance: 0.5
+        min-amount: 1
+        max-amount: 3
+      - material: DIAMOND_PICKAXE
+        chance: 0.8
+        min-amount: 1
+        max-amount: 2
+      - material: DIAMOND_SWORD
+        chance: 0.5
+        min-amount: 1
+        max-amount: 3
+      - material: NETHERITE_AXE
+        chance: 0.5
+        min-amount: 1
+        max-amount: 3
+      - material: GOLDEN_CARROT
+        chance: 1.0
+        min-amount: 16
+        max-amount: 36
+      - material: DRAGON_HEAD
+        chance: 0.1
+        min-amount: 1
+        max-amount: 1
+      - material: WITHER_SKELETON_SKULL
+        chance: 0.1
+        min-amount: 1
+        max-amount: 1
+      - material: ENCHANTED_BOOK
+        chance: 0.5
+        min-amount: 1
+        max-amount: 2
+        enchantments:
+          - "MENDING:1"
+      - material: ENCHANTED_BOOK
+        chance: 0.5
+        min-amount: 1
+        max-amount: 2
+        enchantments:
+          - "SHARPNESS:5"
+      - material: MACE
+        chance: 0.1
+        min-amount: 1
+        max-amount: 1
+      # Extras (agregados por Claude, ajustalos como quieras):
+      - material: TOTEM_OF_UNDYING
+        chance: 0.15
+        min-amount: 1
+        max-amount: 1
+      - material: NETHER_STAR
+        chance: 0.15
+        min-amount: 1
+        max-amount: 1
+      - material: ELYTRA
+        chance: 0.1
+        min-amount: 1
+        max-amount: 1
+      - material: SHULKER_BOX
+        chance: 0.2
+        min-amount: 1
+        max-amount: 2
+      - material: EXPERIENCE_BOTTLE
+        chance: 1.0
+        min-amount: 16
+        max-amount: 32
+      - material: ENDER_PEARL
+        chance: 0.8
+        min-amount: 4
+        max-amount: 8
+      - material: DIAMOND_HORSE_ARMOR
+        chance: 0.15
+        min-amount: 1
+        max-amount: 1
+      # Mas comunes (para que el cofre se vea mas lleno):
+      - material: IRON_BLOCK
+        chance: 1.0
+        min-amount: 3
+        max-amount: 8
+      - material: GOLD_BLOCK
+        chance: 0.9
+        min-amount: 2
+        max-amount: 6
+      - material: LAPIS_BLOCK
+        chance: 1.0
+        min-amount: 3
+        max-amount: 8
+      - material: REDSTONE_BLOCK
+        chance: 1.0
+        min-amount: 3
+        max-amount: 8
+      - material: COAL_BLOCK
+        chance: 1.0
+        min-amount: 3
+        max-amount: 6
+      - material: COPPER_BLOCK
+        chance: 1.0
+        min-amount: 4
+        max-amount: 10
+      - material: AMETHYST_BLOCK
+        chance: 0.7
+        min-amount: 2
+        max-amount: 5
+      - material: IRON_INGOT
+        chance: 1.0
+        min-amount: 10
+        max-amount: 24
+      - material: GOLD_INGOT
+        chance: 0.9
+        min-amount: 6
+        max-amount: 16
+      - material: TNT
+        chance: 0.8
+        min-amount: 2
+        max-amount: 6
+      - material: GUNPOWDER
+        chance: 0.8
+        min-amount: 8
+        max-amount: 16
+      - material: ARROW
+        chance: 1.0
+        min-amount: 16
+        max-amount: 32
+      - material: SPECTRAL_ARROW
+        chance: 0.5
+        min-amount: 4
+        max-amount: 8
+      - material: HONEYCOMB
+        chance: 0.6
+        min-amount: 4
+        max-amount: 8
+      - material: FIREWORK_ROCKET
+        chance: 0.6
+        min-amount: 4
+        max-amount: 10
+      # Mas raros (items unicos/de alto valor, chance bajo a proposito):
+      - material: ENCHANTED_GOLDEN_APPLE
+        chance: 0.05
+        min-amount: 1
+        max-amount: 1
+      - material: TRIDENT
+        chance: 0.1
+        min-amount: 1
+        max-amount: 1
+        enchantments:
+          - "LOYALTY:3"
+      - material: BEACON
+        chance: 0.05
+        min-amount: 1
+        max-amount: 1
+      - material: ANCIENT_DEBRIS
+        chance: 0.2
+        min-amount: 2
+        max-amount: 5
+      - material: HEART_OF_THE_SEA
+        chance: 0.08
+        min-amount: 1
+        max-amount: 1
+      - material: ECHO_SHARD
+        chance: 0.15
+        min-amount: 1
+        max-amount: 3
+      - material: RECOVERY_COMPASS
+        chance: 0.1
+        min-amount: 1
+        max-amount: 1
+      - material: ENCHANTED_BOOK
+        chance: 0.2
+        min-amount: 1
+        max-amount: 1
+        enchantments:
+          - "FORTUNE:3"
+      - material: ENCHANTED_BOOK
+        chance: 0.2
+        min-amount: 1
+        max-amount: 1
+        enchantments:
+          - "PROTECTION:4"
+    # Spawner de SmartSpawner (mob al azar) dentro del airdrop. Necesita el plugin
+    # SmartSpawner instalado; si no esta, esta seccion se ignora sola.
+    smart-spawner-drop:
+      enabled: true
+      chance: 0.1
+      min-amount: 1
+      max-amount: 1
+    # Mientras el cofre este bloqueado (todavia desbloqueandose), cada X minutos aparece una
+    # oleada de contrabandistas tratando de recuperar el cargamento caido. Aparecen de a
+    # lotes con el mismo aviso de particulas blancas que la escolta armada del convoy (el
+    # ritmo del goteo usa convoy.defenders.spawn-batch-size/spawn-batch-interval-seconds,
+    # no hay una config separada para esto).
+    waves:
+      enabled: true
+      interval-minutes: 1
+      pillagers: 6
+      vindicators: 3
+      witches: 2
+      ravagers: 1
+      evokers: 1
+      ghasts: 0
+      blazes: 0
+    messages:
+      incoming: "&e&l[AIRDROP] &fUn cargamento de emergencia esta cayendo del cielo!"
+      landed: "&e&l[AIRDROP] &fEl airdrop aterrizo en %coords%! Se desbloqueara en %minutes% minutos."
+      unlocked: "&a&l[AIRDROP] &fEl airdrop ya se puede abrir!"
+      locked-interact: "&cEste airdrop se desbloquea en %time%"
+      wave: "&4&l[AIRDROP] &fUna oleada de contrabandistas llego a recuperar el cargamento caido!"

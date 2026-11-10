@@ -1,0 +1,167 @@
+=======================================================================
+ SERVEREVENTS 1.4.0 - VERSION MEJORADA (compilada, lista para usar)
+=======================================================================
+Todo esta hecho en esta carpeta, APARTE del servidor. El jar listo es:
+
+    ServerEvents-1.4.0.jar
+
+-----------------------------------------------------------------------
+ NUEVO EN 1.4.0
+-----------------------------------------------------------------------
+1) ARMAS SOLO DE GOLEMS, MUNICION SOLO DE PILLAGERS
+   Antes cualquier escolta armada (hasta 40 a la vez) o contrabandista del airdrop podia
+   soltar armas o municion al morir, y con tantos enemigos el suelo se llenaba de drops.
+   Ahora:
+   - Las ARMAS (glock, ak47, mac10, magnum, uzi, sten, sawedoffshotgun, mp5k, skorpion,
+     awp) SOLO las sueltan los golems del cargamento al morir.
+     Config: convoy.golem-weapon-drops
+   - La MUNICION (9mm, 556, shell) SOLO la sueltan los pillagers (sea escolta del convoy
+     o contrabandista del airdrop) al morir.
+     Config: convoy.ammo-drops
+   - /convoy testdrop ahora prueba las dos listas por separado, bien identificadas.
+
+2) LOS GOLEMS YA NO SE QUEDAN ATASCADOS
+   Si un escalon o desnivel de terreno de 1 bloque los frenaba, ahora lo suben solos
+   (step-height mas alto). Si de verdad hay algo que bloquea todo el paso del convoy (un
+   muro, una construccion nueva que no estaba cuando pusiste el waypoint...) y el grupo
+   no avanza durante ~2 segundos seguidos, se "atraviesa" el obstaculo entero (se reubica
+   un poco mas adelante, siempre parado sobre el terreno solido) en vez de quedar
+   empujando para siempre sin moverse.
+
+3) MEJORAS VISUALES
+   - Los golems ahora muestran una BARRA de vida con color (verde/amarillo/rojo segun
+     cuanta les queda) encima, no solo el numero pelado.
+   - La barra de jefe (bossbar) del convoy tambien cambia de color segun la vida total
+     que le queda al grupo.
+   - El contador del airdrop se pone ROJO en el ultimo minuto antes de desbloquearse.
+
+4) RENDIMIENTO: LIMPIEZA DE HUERFANOS MAS BARATA
+   La deteccion de "restos de versiones viejas del plugin" (entidades sin etiqueta) hacia
+   una consulta extra por CADA pillager/golem/witch/ravager/evoker/ghast/blaze que
+   aparecia NATURALMENTE en el mundo (aldeas, patrullas, mansiones, nether...), para
+   siempre, aunque no hubiera ningun evento corriendo. Ahora esa deteccion se apaga sola
+   a los 30 minutos de arrancar el server (tiempo de sobra para limpiar restos viejos de
+   antes de actualizar) y de ahi en mas solo queda el chequeo rapido y gratis de siempre.
+
+5) LOOT DEL AIRDROP AMPLIADO Y COFRE DE 54 CASILLAS
+   Se agrego netherite (lingotes y armadura completa), bloques de diamante/esmeralda,
+   mace, pico y espada de diamante, hacha de netherite, zanahorias/manzanas doradas,
+   libros encantados (Mending, Filo 5), cabeza de dragon, wither skeleton skull, totem,
+   nether star, elytra, shulker box y mas (ver convoy.airdrop.loot en config.yml). El
+   cofre paso a ser un inventario de 54 casillas (el maximo real de Minecraft) en vez del
+   cofre normal de 27 - se abre con click derecho como antes, solo que ahora es mas
+   grande.
+   Si ademas tenes el plugin SmartSpawner instalado, puede aparecer un spawner de un mob
+   al azar dentro del cofre (convoy.airdrop.smart-spawner-drop).
+
+-----------------------------------------------------------------------
+ LO QUE YA TRAIA LA 1.3.0 (incluido aqui tambien)
+-----------------------------------------------------------------------
+1) LIMPIEZA DE HUERFANOS (+ /convoy cleanup)
+   Antes, si el server se reiniciaba o crasheaba a mitad de un convoy o
+   airdrop, los golems, hologramas, escoltas y hasta el cofre se quedaban
+   en el mundo PARA SIEMPRE. Ahora:
+   - Toda entidad del evento queda etiquetada de forma persistente.
+   - Al arrancar el plugin, barre los mundos y elimina lo que haya
+     quedado suelto (tambien al cargarse chunks lejanos despues).
+   - Los cofres de airdrop activos se apuntan en data.yml y se limpian
+     en el siguiente arranque si quedaron abandonados por un crash.
+   - Comando manual: /convoy cleanup (admin) - reporta cuantas cosas
+     elimino. Tambien reconoce restos de versiones viejas del plugin.
+
+2) NO CORRE CON EL SERVER VACIO
+   - Si toca aparecer el convoy y no hay nadie conectado, se pospone
+     (retry-if-empty-minutes, 5 min por defecto) sin gastar el evento.
+   - Si todos se desconectan a mitad del evento, el convoy se CONGELA
+     (cero movimiento, particulas, oleadas = casi cero CPU) y ya no se
+     "escapa" mientras el server este vacio; sigue cuando alguien entra.
+
+3) RECOMPENSAS POR DANO (no ultimo golpe)   [damage-rewards: true]
+   El dinero de cada golem se reparte proporcionalmente entre TODOS los
+   que le pegaron (pistolas de QualityArmory incluidas), y los items +
+   command-rewards van completos al que MAS dano hizo, que es tambien el
+   que sale en el anuncio del chat. Se acabo el robo de kills.
+
+4) BRUJULA RASTREADORA   [/convoy track - para todos los jugadores]
+   Cualquier jugador puede pedir una brujula que apunta al convoy
+   mientras este activo. Se actualiza sola cada 5s, no se duplica si ya
+   tienes una, y se elimina sola de los inventarios cuando el evento
+   termina. Al aparecer el convoy sale un aviso en el chat recordando
+   el comando (messages.track-hint).
+
+5) DIFICULTAD SEGUN JUGADORES   [scaling]
+   - Oleadas de escolta: crecen segun cuantos jugadores hay CERCA del
+     convoy (+50% por jugador extra por defecto, tope x3).
+   - Vida de los golems: +10% por jugador conectado extra al momento de
+     aparecer (tope x1.5). Solo -> normal; grupo -> mas duro.
+
+6) DROPS DE ARMAS DE QUALITYARMORY   [ver cambio en 1.4.0 arriba]
+   Introducido en 1.3.0 como una sola lista compartida por toda la escolta.
+   DESDE 1.4.0 esto se separo en dos (convoy.golem-weapon-drops para armas,
+   solo golems; convoy.ammo-drops para municion, solo pillagers) - ver el
+   punto 1 de "NUEVO EN 1.4.0". Lo que sigue igual:
+   - Usa la API de QualityArmory directamente, NO comandos.
+   - Los nombres se VALIDAN al arrancar: si uno esta mal escrito, sale
+     un aviso claro en la consola.
+   - Comando de verificacion: /convoy testdrop (admin) - dropea uno de
+     cada item configurado (armas y municion) a tus pies y te dice
+     cuales nombres valen.
+   - IMPORTANTE: el nombre es el campo "name:" INTERNO del yml de
+     QualityArmory: ak47, glock, 9mm, 556, mac10, awp...
+     (NO "default_ak47" ni "Buckshot" - por eso no funcionaba antes).
+   - Solo dropean si hay un jugador a menos de 24 bloques (para no regar
+     loot cuando mueren solos por el auto-kill de lejania).
+
+   Los mobs de las oleadas del airdrop ahora tambien estan rastreados:
+   ya no se pelean entre ellos, se limpian al terminar el airdrop y
+   cuentan para la limpieza de huerfanos.
+
+-----------------------------------------------------------------------
+ LO QUE YA TRAIA LA 1.2.0 (incluido aqui tambien)
+-----------------------------------------------------------------------
+- Airdrop arreglado: el cofre SIEMPRE trae su loot (bug del cofre vacio).
+- El cofre desaparece 10s despues de abrirse (remove-seconds-after-open)
+  y no se puede romper mientras esta bloqueado.
+- Sistema de municiones por comando eliminado -> command-rewards
+  (comandos de consola por golem, con %player% y chance).
+- Escoltas aparecen de 2 en 2 con particulas blancas de aviso, alrededor
+  del convoy (anillo spawn-min-radius / spawn-max-radius), no en el centro.
+- Iron golems SIN IA: el plugin los mueve por velocidad y los orienta.
+- Optimizaciones: hologramas montados (cero teleports), textos/bossbar
+  solo cuando cambian, purga de escoltas despawneados, alertas de raid
+  agrupadas por chunk, descenso del airdrop interpolado.
+
+-----------------------------------------------------------------------
+ COMANDOS
+-----------------------------------------------------------------------
+ /convoy track       -> brujula rastreadora (TODOS los jugadores)
+ /convoy spawn       -> genera el convoy ya           (admin)
+ /convoy stop        -> detiene y limpia el convoy    (admin)
+ /convoy airdrop     -> airdrop de prueba             (admin)
+ /convoy cleanup     -> limpia entidades/cofres huerfanos (admin)
+ /convoy testdrop    -> prueba los drops de armas/municion QA (admin)
+ /convoy addpoint / clearpoints / listpoints / reload (admin)
+
+-----------------------------------------------------------------------
+ COMO PONERLO EN EL SERVIDOR (cuando tu quieras)
+-----------------------------------------------------------------------
+1. Para el servidor.
+2. Borra el ServerEvents-*.jar viejo de plugins/.
+3. Copia aqui  ServerEvents-1.4.0.jar  a plugins/.
+4. Tu config actual sigue sirviendo: las opciones nuevas (tracker,
+   scaling, golem-weapon-drops, ammo-drops, retry-if-empty-minutes,
+   damage-rewards, track-hint, smart-spawner-drop) toman valores por
+   defecto si no estan. Para ajustarlas, copia las secciones desde
+   resources/config.yml de esta carpeta.
+   OJO: si ya tenias configurado convoy.defenders.weapon-drops de una
+   1.3.0 previa, esa seccion ya NO se usa (quedo dividida en
+   convoy.golem-weapon-drops y convoy.ammo-drops) - copiala de nuevo
+   desde el config.yml de esta carpeta si la habias personalizado.
+5. Enciende el servidor y revisa la consola: si algun nombre de arma
+   esta mal, ahi mismo te lo dice. Luego /convoy testdrop en el juego.
+
+-----------------------------------------------------------------------
+ RECOMPILAR (si editas el codigo)
+-----------------------------------------------------------------------
+Ejecuta  compilar.bat  (necesita el JDK en el PATH). Deja el jar nuevo
+en esta misma carpeta.
